@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azfla Chat - Aplikasi Chat Dua Tab</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #121212;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background-color: #1e1e1e;
+            border-radius: 15px;
+            border: 1px solid #333;
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #fff;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo i {
+            font-size: 28px;
+            color: #4dabf7;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        
+        .logo span {
+            color: #aaa;
+            font-size: 14px;
+            font-weight: normal;
+            margin-left: 10px;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #222;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid #333;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+        }
+        
+        .status.connected .status-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .app-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .tab-selector {
+            width: 280px;
+            background-color: #151515;
+            border-right: 1px solid #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .tab-selector h3 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .tab-option {
+            padding: 15px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tab-option:hover {
+            background-color: #222;
+            transform: translateX(5px);
+        }
+        
+        .tab-option.active {
+            border-color: #4dabf7;
+            background-color: #222;
+            box-shadow: 0 0 10px rgba(77, 171, 247, 0.2);
+        }
+        
+        .tab-option i {
+            font-size: 20px;
+            color: #fff;
+        }
+        
+        .tab-option h4 {
+            font-size: 16px;
+            color: #fff;
+        }
+        
+        .tab-option p {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            background-color: #151515;
+        }
+        
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1a1a1a;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            border: 2px solid;
+        }
+        
+        .user-details h3 {
+            font-size: 18px;
+            color: #fff;
+        }
+        
+        .user-details p {
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #151515;
+        }
+        
+        /* Scrollbar styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: #111;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* PESAN AZFLA - WARNA BIRU */
+        .message.azfla {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #1e88e5, #1565c0);
+            color: white;
+            border-top-right-radius: 5px;
+            border: 1px solid #1976d2;
+            box-shadow: 0 2px 8px rgba(30, 136, 229, 0.3);
+        }
+        
+        /* PESAN USER PINTAR - WARNA HIJAU */
+        .message.user-pintar {
+            align-self: flex-start;
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+            color: white;
+            border-top-left-radius: 5px;
+            border: 1px solid #388e3c;
+            box-shadow: 0 2px 8px rgba(67, 160, 71, 0.3);
+        }
+        
+        .message-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 11px;
+            opacity: 0.9;
+        }
+        
+        .message.azfla .message-info {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .message.user-pintar .message-info {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .message-input-container {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            border-top: 1px solid #333;
+            background-color: #1a1a1a;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid #333;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+            background-color: #222;
+            color: #fff;
+        }
+        
+        .message-input:focus {
+            border-color: #4dabf7;
+        }
+        
+        .send-button {
+            background: linear-gradient(135deg, #1e88e5, #1565c0);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .send-button:hover {
+            background: linear-gradient(135deg, #2196f3, #0d47a1);
+            transform: scale(1.05);
+        }
+        
+        .instructions {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #333;
+        }
+        
+        .instructions h3 {
+            color: #4dabf7;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .instructions strong {
+            color: #fff;
+        }
+        
+        .connection-panel {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #333;
+            margin-top: 10px;
+        }
+        
+        .connection-panel h4 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .connection-status span {
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        .connection-status .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #f44336;
+        }
+        
+        .connection-status .status-indicator.connected {
+            background-color: #4CAF50;
+        }
+        
+        .connection-info {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+        
+        .system-message {
+            align-self: center;
+            background-color: #222;
+            color: #aaa;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 13px;
+            text-align: center;
+            max-width: 80%;
+            border: 1px solid #333;
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #222;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4dabf7;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            max-width: 300px;
+        }
+        
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .color-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .color-indicator-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .color-box {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+        
+        .color-azfla {
+            background: linear-gradient(135deg, #1e88e5, #1565c0);
+        }
+        
+        .color-user-pintar {
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                height: 95vh;
+                max-height: 95vh;
+            }
+            
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .tab-selector {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #333;
+                max-height: 250px;
+                overflow-y: auto;
+            }
+            
+            .chat-container {
+                height: calc(100% - 250px);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 15px;
+            }
+            
+            .logo h1 {
+                font-size: 20px;
+            }
+            
+            .status {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .chat-messages {
+                padding: 15px;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-comment-dots"></i>
+                <h1>Azfla Chat<span>• Two-Tab Messenger</span></h1>
+            </div>
+            <div class="status" id="status">
+                <div class="status-dot"></div>
+                <span id="status-text">Menghubungkan...</span>
+            </div>
+        </header>
+        
+        <div class="app-container">
+            <div class="tab-selector">
+                <h3><i class="fas fa-user-tag"></i> Pilih Identitas Anda</h3>
+                
+                <div class="tab-option active" id="tab1">
+                    <i class="fas fa-user-circle"></i>
+                    <div>
+                        <h4>Azfla</h4>
+                        <p>Pesan Anda berwarna BIRU</p>
+                    </div>
+                </div>
+                
+                <div class="tab-option" id="tab2">
+                    <i class="fas fa-user-circle"></i>
+                    <div>
+                        <h4>User Pintar</h4>
+                        <p>Pesan Anda berwarna HIJAU</p>
+                    </div>
+                </div>
+                
+                <div class="color-indicator">
+                    <div class="color-indicator-item">
+                        <div class="color-box color-azfla"></div>
+                        <span>Azfla (Anda)</span>
+                    </div>
+                    <div class="color-indicator-item">
+                        <div class="color-box color-user-pintar"></div>
+                        <span>User Pintar</span>
+                    </div>
+                </div>
+                
+                <div class="connection-panel">
+                    <h4><i class="fas fa-plug"></i> Status Koneksi</h4>
+                    <div class="connection-status">
+                        <span>Koneksi LocalStorage:</span>
+                        <div class="status-indicator" id="storage-indicator"></div>
+                    </div>
+                    <div class="connection-status">
+                        <span>Tab Terhubung:</span>
+                        <span id="tab-count">0</span>
+                    </div>
+                    <div class="connection-info" id="connection-info">
+                        Buka aplikasi ini di dua tab browser dan pilih identitas berbeda di setiap tab.
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> Cara Menggunakan:</h3>
+                    <ol>
+                        <li>Buka <strong>file ini di dua tab browser</strong> (Ctrl+T / Cmd+T)</li>
+                        <li>Pada <strong>tab pertama</strong>, pilih <strong>"Azfla"</strong></li>
+                        <li>Pada <strong>tab kedua</strong>, pilih <strong>"User Pintar"</strong></li>
+                        <li>Kirim pesan dari salah satu tab dan lihat pesan muncul di tab lain</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="user-info">
+                        <div class="avatar" id="current-avatar" style="background: linear-gradient(135deg, #1e88e5, #1565c0); border-color: #1976d2;">A</div>
+                        <div class="user-details">
+                            <h3 id="current-user">Azfla</h3>
+                            <p id="current-status">Pilih identitas untuk memulai chat</p>
+                        </div>
+                    </div>
+                    
+                    <div class="status" id="chat-status">
+                        <div class="status-dot"></div>
+                        <span id="chat-status-text">Offline</span>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Pesan akan dimuat di sini -->
+                    <div class="system-message">
+                        <i class="fas fa-info-circle"></i> Selamat datang di Azfla Chat! Pesan Anda akan berwarna BIRU, pesan User Pintar akan berwarna HIJAU.
+                    </div>
+                    
+                    <div class="timestamp" id="current-date"></div>
+                </div>
+                
+                <div class="message-input-container">
+                    <input type="text" class="message-input" id="message-input" placeholder="Ketik pesan Anda di sini..." disabled>
+                    <button class="send-button" id="send-button" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <div id="notification-text"></div>
+    </div>
+
+    <script>
+        // Konfigurasi aplikasi Azfla Chat
+        const AZFLA_CONFIG = {
+            azfla: {
+                id: "azfla",
+                name: "Azfla",
+                avatar: "A",
+                color: "#1e88e5",
+                messageClass: "azfla"
+            },
+            user_pintar: {
+                id: "user_pintar", 
+                name: "User Pintar",
+                avatar: "UP",
+                color: "#43a047",
+                messageClass: "user-pintar"
+            }
+        };
+        
+        // State aplikasi
+        let currentApp = AZFLA_CONFIG.azfla;
+        let lastActivityTime = Date.now();
+        let messageCount = 0;
+        let connectionCheckInterval;
+        let isConnected = false;
+        
+        // Elemen DOM
+        const tab1Btn = document.getElementById('tab1');
+        const tab2Btn = document.getElementById('tab2');
+        const currentAvatar = document.getElementById('current-avatar');
+        const currentUser = document.getElementById('current-user');
+        const currentStatus = document.getElementById('current-status');
+        const chatMessages = document.getElementById('chat-messages');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const tabCount = document.getElementById('tab-count');
+        const statusIndicator = document.getElementById('storage-indicator');
+        const connectionInfo = document.getElementById('connection-info');
+        const chatStatus = document.getElementById('chat-status-text');
+        const statusText = document.getElementById('status-text');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const currentDateElement = document.getElementById('current-date');
+        
+        // Inisialisasi aplikasi
+        function initApp() {
+            // Set tanggal hari ini
+            const today = new Date();
+            currentDateElement.textContent = today.toLocaleDateString('id-ID', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            // Cek apakah ada data sebelumnya di localStorage
+            const savedApp = localStorage.getItem('azfla_selected_app');
+            if (savedApp) {
+                currentApp = savedApp === 'azfla' ? AZFLA_CONFIG.azfla : AZFLA_CONFIG.user_pintar;
+            }
+            
+            updateUI();
+            loadMessages();
+            setupEventListeners();
+            startConnectionMonitor();
+            updateConnectionStatus();
+            
+            // Enable input setelah inisialisasi
+            setTimeout(() => {
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                messageInput.placeholder = "Ketik pesan Anda di sini...";
+                showNotification("Azfla Chat siap digunakan! Pilih identitas Anda.");
+            }, 500);
+        }
+        
+        // Update UI berdasarkan aplikasi yang dipilih
+        function updateUI() {
+            // Update tab aktif
+            tab1Btn.classList.toggle('active', currentApp.id === 'azfla');
+            tab2Btn.classList.toggle('active', currentApp.id === 'user_pintar');
+            
+            // Update info pengguna
+            currentAvatar.textContent = currentApp.avatar;
+            currentUser.textContent = currentApp.name;
+            
+            // Update warna avatar
+            if (currentApp.id === 'azfla') {
+                currentAvatar.style.background = "linear-gradient(135deg, #1e88e5, #1565c0)";
+                currentAvatar.style.borderColor = "#1976d2";
+            } else {
+                currentAvatar.style.background = "linear-gradient(135deg, #43a047, #2e7d32)";
+                currentAvatar.style.borderColor = "#388e3c";
+            }
+            
+            // Update status
+            currentStatus.textContent = "Online - Menunggu pesan...";
+            chatStatus.textContent = "Online";
+            
+            // Simpan preferensi ke localStorage
+            localStorage.setItem('azfla_selected_app', currentApp.id);
+            
+            // Update judul halaman
+            document.title = `Azfla Chat - ${currentApp.name}`;
+            
+            // Update koneksi
+            updateConnectionStatus();
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Tab selection
+            tab1Btn.addEventListener('click', () => {
+                currentApp = AZFLA_CONFIG.azfla;
+                updateUI();
+                showNotification(`Anda sekarang sebagai ${currentApp.name} (Warna BIRU)`);
+            });
+            
+            tab2Btn.addEventListener('click', () => {
+                currentApp = AZFLA_CONFIG.user_pintar;
+                updateUI();
+                showNotification(`Anda sekarang sebagai ${currentApp.name} (Warna HIJAU)`);
+            });
+            
+            // Kirim pesan dengan tombol
+            sendButton.addEventListener('click', sendMessage);
+            
+            // Kirim pesan dengan Enter
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Update status mengetik
+            messageInput.addEventListener('input', () => {
+                lastActivityTime = Date.now();
+                broadcastTypingStatus();
+            });
+            
+            // Event listener untuk perubahan localStorage (pesan dari tab lain)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'azfla_chat_messages') {
+                    loadMessages();
+                    showNotification("Pesan baru diterima!");
+                }
+                
+                if (e.key === 'azfla_typing_status') {
+                    updateTypingStatus(JSON.parse(e.newValue));
+                }
+                
+                if (e.key === 'azfla_connection_status') {
+                    updateConnectionStatus();
+                }
+                
+                if (e.key === 'azfla_app_selection') {
+                    const selectedApps = JSON.parse(e.newValue || '{}');
+                    updateTabCountDisplay(selectedApps);
+                }
+            });
+            
+            // Event listener untuk komunikasi dalam tab yang sama
+            window.addEventListener('azfla_chat_message', (e) => {
+                if (e.detail) {
+                    addMessageToUI(e.detail);
+                }
+            });
+            
+            // Update koneksi saat halaman terlihat
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    updateConnectionStatus();
+                }
+            });
+            
+            // Update koneksi saat window focus
+            window.addEventListener('focus', () => {
+                updateConnectionStatus();
+            });
+        }
+        
+        // Kirim pesan
+        function sendMessage() {
+            const messageText = messageInput.value.trim();
+            
+            if (!messageText) return;
+            
+            // Buat objek pesan
+            const message = {
+                id: Date.now() + Math.random(),
+                text: messageText,
+                sender: currentApp.id,
+                senderName: currentApp.name,
+                timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                avatar: currentApp.avatar,
+                date: new Date().toLocaleDateString('id-ID'),
+                messageClass: currentApp.messageClass
+            };
+            
+            // Tambahkan ke UI
+            addMessageToUI(message, true);
+            
+            // Simpan ke localStorage
+            saveMessage(message);
+            
+            // Reset input
+            messageInput.value = '';
+            messageInput.focus();
+            
+            // Update last activity
+            lastActivityTime = Date.now();
+            
+            // Broadcast ke tab lain
+            broadcastMessage(message);
+            
+            // Update status koneksi
+            updateConnectionStatus();
+        }
+        
+        // Tambahkan pesan ke UI
+        function addMessageToUI(message, isOwnMessage = false) {
+            // Cek apakah pesan dengan ID yang sama sudah ada
+            const existingMessage = document.querySelector(`[data-message-id="${message.id}"]`);
+            if (existingMessage) return;
+            
+            // Tentukan class untuk pesan berdasarkan pengirim
+            let messageClass = message.messageClass;
+            
+            // Jika tidak ada class di message, tentukan berdasarkan sender
+            if (!messageClass) {
+                messageClass = message.sender === 'azfla' ? 'azfla' : 'user-pintar';
+            }
+            
+            // Buat elemen pesan
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${messageClass}`;
+            messageDiv.setAttribute('data-message-id', message.id);
+            
+            messageDiv.innerHTML = `
+                <div class="message-text">${escapeHtml(message.text)}</div>
+                <div class="message-info">
+                    <span class="sender">${message.senderName}</span>
+                    <span class="time">${message.timestamp}</span>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            
+            // Scroll ke bawah
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Update message count
+            messageCount++;
+        }
+        
+        // Helper function untuk escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Simpan pesan ke localStorage
+        function saveMessage(message) {
+            // Ambil pesan yang ada
+            let messages = JSON.parse(localStorage.getItem('azfla_chat_messages')) || [];
+            
+            // Tambahkan pesan baru
+            messages.push(message);
+            
+            // Simpan kembali (maks 100 pesan)
+            if (messages.length > 100) {
+                messages = messages.slice(-100);
+            }
+            
+            localStorage.setItem('azfla_chat_messages', JSON.stringify(messages));
+        }
+        
+        // Muat pesan dari localStorage
+        function loadMessages() {
+            const messages = JSON.parse(localStorage.getItem('azfla_chat_messages')) || [];
+            
+            // Clear chat UI terlebih dahulu (kecuali pesan sistem)
+            const systemMessages = Array.from(chatMessages.querySelectorAll('.system-message, .timestamp'));
+            
+            chatMessages.innerHTML = '';
+            
+            // Tambahkan kembali pesan sistem
+            systemMessages.forEach(msg => chatMessages.appendChild(msg));
+            
+            // Tambahkan semua pesan dari storage
+            messages.forEach(message => {
+                addMessageToUI(message);
+            });
+            
+            // Scroll ke bawah
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Broadcast pesan ke tab lain
+        function broadcastMessage(message) {
+            // Trigger event di tab yang sama untuk update UI
+            const event = new CustomEvent('azfla_chat_message', { detail: message });
+            window.dispatchEvent(event);
+            
+            // Update localStorage untuk trigger event di tab lain
+            localStorage.setItem('azfla_last_message', JSON.stringify({
+                ...message,
+                broadcastTime: Date.now()
+            }));
+        }
+        
+        // Broadcast status mengetik
+        function broadcastTypingStatus() {
+            const typingStatus = {
+                app: currentApp.id,
+                name: currentApp.name,
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem('azfla_typing_status', JSON.stringify(typingStatus));
+        }
+        
+        // Update status mengetik dari tab lain
+        function updateTypingStatus(status) {
+            // Hanya update jika status dari aplikasi lain
+            if (status.app !== currentApp.id) {
+                const timeSince = Date.now() - status.timestamp;
+                
+                // Jika kurang dari 3 detik yang lalu, tunjukkan "Sedang mengetik"
+                if (timeSince < 3000) {
+                    currentStatus.textContent = `${status.name} sedang mengetik...`;
+                    
+                    // Reset status setelah 3 detik
+                    setTimeout(() => {
+                        if (Date.now() - status.timestamp >= 3000) {
+                            currentStatus.textContent = 'Online';
+                        }
+                    }, 3000);
+                }
+            }
+        }
+        
+        // Monitor koneksi
+        function startConnectionMonitor() {
+            // Update koneksi setiap 2 detik
+            connectionCheckInterval = setInterval(() => {
+                updateConnectionStatus();
+                
+                // Update status berdasarkan aktivitas
+                const timeSinceLastActivity = Date.now() - lastActivityTime;
+                
+                if (timeSinceLastActivity < 10000) {
+                    chatStatus.textContent = 'Online';
+                    document.getElementById('chat-status').classList.add('connected');
+                } else {
+                    chatStatus.textContent = 'Idle';
+                    document.getElementById('chat-status').classList.remove('connected');
+                }
+            }, 2000);
+        }
+        
+        // Update status koneksi
+        function updateConnectionStatus() {
+            // Simpan status koneksi tab ini
+            const connectionData = {
+                appId: currentApp.id,
+                timestamp: Date.now(),
+                userAgent: navigator.userAgent.substring(0, 50)
+            };
+            
+            // Ambil semua koneksi yang aktif
+            let connections = JSON.parse(localStorage.getItem('azfla_connections')) || {};
+            connections[currentApp.id + '_' + getTabId()] = connectionData;
+            
+            // Hapus koneksi yang sudah lama (lebih dari 10 detik)
+            const now = Date.now();
+            Object.keys(connections).forEach(key => {
+                if (now - connections[key].timestamp > 10000) {
+                    delete connections[key];
+                }
+            });
+            
+            // Simpan kembali
+            localStorage.setItem('azfla_connections', JSON.stringify(connections));
+            
+            // Update UI
+            const activeConnections = Object.keys(connections).length;
+            tabCount.textContent = activeConnections;
+            
+            // Update status koneksi
+            if (activeConnections >= 2) {
+                statusIndicator.className = 'status-indicator connected';
+                statusText.textContent = `${activeConnections} tab terhubung`;
+                
+                // Cek apakah kedua user terhubung
+                const hasAzfla = Object.values(connections).some(c => c.appId === 'azfla');
+                const hasUserPintar = Object.values(connections).some(c => c.appId === 'user_pintar');
+                
+                if (hasAzfla && hasUserPintar) {
+                    connectionInfo.textContent = 'Koneksi berhasil! Azfla dan User Pintar terhubung.';
+                } else if (hasAzfla && !hasUserPintar) {
+                    connectionInfo.textContent = 'Menunggu User Pintar terhubung...';
+                } else if (!hasAzfla && hasUserPintar) {
+                    connectionInfo.textContent = 'Menunggu Azfla terhubung...';
+                } else {
+                    connectionInfo.textContent = 'Koneksi aktif! Anda dapat mengirim pesan antar tab.';
+                }
+                
+                isConnected = true;
+            } else {
+                statusIndicator.className = 'status-indicator';
+                statusText.textContent = 'Menunggu koneksi tab kedua...';
+                connectionInfo.textContent = 'Buka aplikasi ini di tab lain dan pilih identitas berbeda.';
+                isConnected = false;
+            }
+            
+            // Update tab selection display
+            updateAppSelectionDisplay();
+            
+            // Trigger event untuk tab lain
+            localStorage.setItem('azfla_connection_status', Date.now().toString());
+        }
+        
+        // Generate ID unik untuk tab
+        function getTabId() {
+            let tabId = sessionStorage.getItem('azfla_tab_id');
+            if (!tabId) {
+                tabId = 'tab_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                sessionStorage.setItem('azfla_tab_id', tabId);
+            }
+            return tabId;
+        }
+        
+        // Update tampilan pemilihan aplikasi
+        function updateAppSelectionDisplay() {
+            let appSelections = JSON.parse(localStorage.getItem('azfla_app_selection')) || {};
+            appSelections[getTabId()] = {
+                appId: currentApp.id,
+                timestamp: Date.now()
+            };
+            
+            // Hapus seleksi yang sudah lama
+            const now = Date.now();
+            Object.keys(appSelections).forEach(key => {
+                if (now - appSelections[key].timestamp > 15000) {
+                    delete appSelections[key];
+                }
+            });
+            
+            localStorage.setItem('azfla_app_selection', JSON.stringify(appSelections));
+            
+            // Update display
+            updateTabCountDisplay(appSelections);
+        }
+        
+        // Update tampilan jumlah tab
+        function updateTabCountDisplay(appSelections) {
+            // Hitung berapa banyak tab yang memilih setiap aplikasi
+            const counts = { azfla: 0, user_pintar: 0 };
+            
+            if (appSelections) {
+                Object.values(appSelections).forEach(selection => {
+                    if (selection.appId === 'azfla') counts.azfla++;
+                    if (selection.appId === 'user_pintar') counts.user_pintar++;
+                });
+            }
+            
+            // Update teks informasi
+            if (counts.azfla >= 1 && counts.user_pintar >= 1) {
+                connectionInfo.textContent = 'Koneksi berhasil! Azfla dan User Pintar terhubung.';
+            } else if (counts.azfla >= 2) {
+                connectionInfo.textContent = 'Peringatan: Dua tab memilih Azfla. Pilih User Pintar di tab lain.';
+            } else if (counts.user_pintar >= 2) {
+                connectionInfo.textContent = 'Peringatan: Dua tab memilih User Pintar. Pilih Azfla di tab lain.';
+            }
+        }
+        
+        // Tampilkan notifikasi
+        function showNotification(text) {
+            notificationText.textContent = text;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Tambahkan beberapa pesan contoh
+        function addSampleMessages() {
+            const messages = JSON.parse(localStorage.getItem('azfla_chat_messages')) || [];
+            
+            if (messages.length === 0) {
+                const sampleMessages = [
+                    {
+                        id: 1,
+                        text: "Halo! Selamat datang di Azfla Chat.",
+                        sender: "system",
+                        senderName: "Sistem",
+                        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                        avatar: "AZ",
+                        date: new Date().toLocaleDateString('id-ID'),
+                        messageClass: "system"
+                    },
+                    {
+                        id: 2,
+                        text: "Pesan Azfla berwarna BIRU, pesan User Pintar berwarna HIJAU.",
+                        sender: "system",
+                        senderName: "Sistem",
+                        timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                        avatar: "AZ",
+                        date: new Date().toLocaleDateString('id-ID'),
+                        messageClass: "system"
+                    }
+                ];
+                
+                sampleMessages.forEach(msg => {
+                    messages.push(msg);
+                });
+                
+                localStorage.setItem('azfla_chat_messages', JSON.stringify(messages));
+                loadMessages();
+            }
+        }
+        
+        // Inisialisasi aplikasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            addSampleMessages();
+            
+            // Tampilkan petunjuk pertama kali
+            if (!localStorage.getItem('azfla_welcome_shown')) {
+                setTimeout(() => {
+                    showNotification("Buka file ini di tab browser lain untuk menguji chat dua tab!");
+                    localStorage.setItem('azfla_welcome_shown', 'true');
+                }, 1000);
+            }
+            
+            // Set focus ke input pesan
+            setTimeout(() => {
+                messageInput.focus();
+            }, 500);
+        });
+        
+        // Cleanup saat tab ditutup
+        window.addEventListener('beforeunload', () => {
+            // Hapus data koneksi tab ini
+            let connections = JSON.parse(localStorage.getItem('azfla_connections')) || {};
+            const tabKey = currentApp.id + '_' + getTabId();
+            delete connections[tabKey];
+            localStorage.setItem('azfla_connections', JSON.stringify(connections));
+            
+            // Hapus seleksi aplikasi tab ini
+            let appSelections = JSON.parse(localStorage.getItem('azfla_app_selection')) || {};
+            delete appSelections[getTabId()];
+            localStorage.setItem('azfla_app_selection', JSON.stringify(appSelections));
+            
+            // Hentikan interval
+            if (connectionCheckInterval) {
+                clearInterval(connectionCheckInterval);
+            }
+        });
+    </script>
+</body>
+</html>
